@@ -26,21 +26,8 @@ def weight(index, pos, res, gpu, sigmasq):
     #w = F.relu(1 - torch.abs(-index + pos))
     v = torch.min(torch.min(torch.abs(pos-index), torch.abs(pos+res-index)),
                   torch.abs(pos-res-index))
-    w = 1e3*torch.exp(-torch.mul(v,v)/sigmasq)
+    w = torch.exp(-torch.mul(v,v)/sigmasq)
     return w
-
-def pos_to_im2(x, res, gpu):
-    M = torch.zeros(res, res)
-    Mx = torch.arange(0,res).type(torch.float)
-    My = torch.arange(0,res).type(torch.float)
-    if gpu:
-        M = M.cuda(); Mx = Mx.cuda(); My = My.cuda()
-    for k in range(x.shape[0]):
-         im_x = weight(Mx,x[k,0], res, gpu).unsqueeze(1)
-         im_y = weight(My,x[k,1], res, gpu).unsqueeze(0)
-         M += torch.mm(im_x,im_y)
-    return M.unsqueeze(0).unsqueeze(0)
-
 
 
 def pos_to_im3(x, res, gpu, sigmasq):
@@ -100,7 +87,7 @@ from kymatio.phaseharmonics2d.phase_harmonics_k_bump_chunkid_simplephase \
     import PhaseHarmonics2d
 
 Sims = []
-factr = 1e-7
+factr = 1e-3
 wph_ops = dict()
 nCov = 0
 for chunk_id in range(nb_chunks+1):
@@ -148,7 +135,7 @@ def grad_obj_fun(x_gpu):
         #del grad_err_
         #del wph_ops[chunk_id]
         #gc.collect()
-        
+
     return loss, grad_err
 
 count = 0
@@ -203,4 +190,3 @@ torch.save(x_fin, 'poissoncircle_70_25_35_pos_s128_J7.pt')
 #im = pos_to_im3(x_fin, size, False)
 #plt.imshow(im.squeeze().numpy())
 #plt.show()
-
