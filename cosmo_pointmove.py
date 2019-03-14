@@ -43,7 +43,7 @@ im = torch.from_numpy(im).type(torch.float).unsqueeze(0).unsqueeze(0).cuda()
 m = torch.mean(im)  # We need the total mass to determine the mass of the Gaussians
 
 
-nb_points = int(1e4)  # We choose the number of points for approximation
+nb_points = int(5*1e3)  # We choose the number of points for approximation
 
 
 # define point model
